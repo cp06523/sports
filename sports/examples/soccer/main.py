@@ -8,12 +8,18 @@ import numpy as np
 import supervision as sv
 from tqdm import tqdm
 from ultralytics import YOLO
+import matplotlib.pyplot as plt
+# from sports.annotators.soccer import draw_pitch, draw_points_on_pitch
+# from sports.common.ball import BallTracker, BallAnnotator
+# from sports.common.team import TeamClassifier
+# from sports.common.view import ViewTransformer
+# from sports.configs.soccer import SoccerPitchConfiguration
 
-from sports.annotators.soccer import draw_pitch, draw_points_on_pitch
-from sports.common.ball import BallTracker, BallAnnotator
-from sports.common.team import TeamClassifier
-from sports.common.view import ViewTransformer
-from sports.configs.soccer import SoccerPitchConfiguration
+from annotators.soccer import draw_pitch, draw_points_on_pitch
+from common.ball import BallTracker, BallAnnotator
+from common.team import TeamClassifier
+from common.view import ViewTransformer
+from configs.soccer import SoccerPitchConfiguration
 
 PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLAYER_DETECTION_MODEL_PATH = os.path.join(PARENT_DIR, 'data/football-player-detection.pt')
@@ -385,8 +391,12 @@ def run_radar(source_video_path: str, device: str) -> Iterator[np.ndarray]:
         annotated_frame = sv.draw_image(annotated_frame, radar, opacity=0.5, rect=rect)
         yield annotated_frame
 
-
-def main(source_video_path: str, target_video_path: str, device: str, mode: Mode) -> None:
+def plot_image(image: np.ndarray, size: int = 12) -> None:
+    plt.figure(figsize=(size, size))
+    plt.imshow(image[...,::-1])
+    plt.show()
+    
+def main(source_video_path: str, target_video_path: str, device: str, mode: Mode,plot=True) -> None:
     if mode == Mode.PITCH_DETECTION:
         frame_generator = run_pitch_detection(
             source_video_path=source_video_path, device=device)
@@ -413,7 +423,9 @@ def main(source_video_path: str, target_video_path: str, device: str, mode: Mode
         for frame in frame_generator:
             sink.write_frame(frame)
 
-            cv2.imshow("frame", frame)
+            # cv2.imshow("frame", frame)
+            if plot=True:
+                plot_image(frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
         cv2.destroyAllWindows()
