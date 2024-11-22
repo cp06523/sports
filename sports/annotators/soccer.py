@@ -4,7 +4,9 @@ import cv2
 import supervision as sv
 import numpy as np
 
-from sports.configs.soccer import SoccerPitchConfiguration
+# from sports.configs.soccer import SoccerPitchConfiguration
+
+from configs.soccer import SoccerPitchConfiguration
 
 
 def draw_pitch(
