@@ -22,9 +22,9 @@ from common.view import ViewTransformer
 from configs.soccer import SoccerPitchConfiguration
 
 PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PLAYER_DETECTION_MODEL_PATH = os.path.join(PARENT_DIR, 'data/football-player-detection.pt')
-PITCH_DETECTION_MODEL_PATH = os.path.join(PARENT_DIR, 'data/football-pitch-detection.pt')
-BALL_DETECTION_MODEL_PATH = os.path.join(PARENT_DIR, 'data/football-ball-detection.pt')
+PLAYER_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/player_detection_best.pt' # os.path.join(PARENT_DIR, 'data/football-player-detection.pt')
+PITCH_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/Ball_detect_best.pt' #  = os.path.join(PARENT_DIR, 'data/football-pitch-detection.pt')
+BALL_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/Ball_detect_best.pt' #os.path.join(PARENT_DIR, 'data/football-ball-detection.pt')
 
 BALL_CLASS_ID = 0
 GOALKEEPER_CLASS_ID = 1
