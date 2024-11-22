@@ -424,7 +424,7 @@ def main(source_video_path: str, target_video_path: str, device: str, mode: Mode
             sink.write_frame(frame)
 
             # cv2.imshow("frame", frame)
-            if plot=True:
+            if plot==True:
                 plot_image(frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
