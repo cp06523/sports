@@ -164,7 +164,7 @@ def render_radar(
             face_color=sv.Color.from_hex(COLORS[3]), radius=20, pitch=radar)
         return radar
     except: 
-        print('Failed to render radar)
+        print('Failed to render radar')
         continue
     
 
