@@ -354,7 +354,7 @@ def run_radar(source_video_path: str, device: str) -> Iterator[np.ndarray]:
     frame_generator = sv.get_video_frames_generator(source_path=source_video_path)
     tracker = sv.ByteTrack(minimum_consecutive_frames=3)
     for frame in frame_generator:
-        result = pitch_detection_model.infer(frame, confidence=.9)[0]    #(frame, verbose=False)[0]
+        result = pitch_detection_model(frame, verbose=False)[0]  #.infer(frame, confidence=.9)[0]  
         keypoints = sv.KeyPoints.from_inference(result)
         result = player_detection_model(frame, imgsz=1280, verbose=False)[0]
         detections = sv.Detections.from_ultralytics(result)
