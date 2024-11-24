@@ -140,31 +140,29 @@ def render_radar(
     keypoints: sv.KeyPoints,
     color_lookup: np.ndarray
 ) -> np.ndarray:
-    try:
-        mask = (keypoints.xy[0][:, 0] > 1) & (keypoints.xy[0][:, 1] > 1)
-        transformer = ViewTransformer(
-            source=keypoints.xy[0][mask].astype(np.float32),
-            target=np.array(CONFIG.vertices)[mask].astype(np.float32)
-        )
-        xy = detections.get_anchors_coordinates(anchor=sv.Position.BOTTOM_CENTER)
-        transformed_xy = transformer.transform_points(points=xy)
-    
-        radar = draw_pitch(config=CONFIG)
-        radar = draw_points_on_pitch(
-            config=CONFIG, xy=transformed_xy[color_lookup == 0],
-            face_color=sv.Color.from_hex(COLORS[0]), radius=20, pitch=radar)
-        radar = draw_points_on_pitch(
-            config=CONFIG, xy=transformed_xy[color_lookup == 1],
-            face_color=sv.Color.from_hex(COLORS[1]), radius=20, pitch=radar)
-        radar = draw_points_on_pitch(
-            config=CONFIG, xy=transformed_xy[color_lookup == 2],
-            face_color=sv.Color.from_hex(COLORS[2]), radius=20, pitch=radar)
-        radar = draw_points_on_pitch(
-            config=CONFIG, xy=transformed_xy[color_lookup == 3],
-            face_color=sv.Color.from_hex(COLORS[3]), radius=20, pitch=radar)
-        return radar
-    except: 
-        print('Failed to render radar')
+    mask = (keypoints.xy[0][:, 0] > 1) & (keypoints.xy[0][:, 1] > 1)
+    transformer = ViewTransformer(
+        source=keypoints.xy[0][mask].astype(np.float32),
+        target=np.array(CONFIG.vertices)[mask].astype(np.float32)
+    )
+    xy = detections.get_anchors_coordinates(anchor=sv.Position.BOTTOM_CENTER)
+    transformed_xy = transformer.transform_points(points=xy)
+
+    radar = draw_pitch(config=CONFIG)
+    radar = draw_points_on_pitch(
+        config=CONFIG, xy=transformed_xy[color_lookup == 0],
+        face_color=sv.Color.from_hex(COLORS[0]), radius=20, pitch=radar)
+    radar = draw_points_on_pitch(
+        config=CONFIG, xy=transformed_xy[color_lookup == 1],
+        face_color=sv.Color.from_hex(COLORS[1]), radius=20, pitch=radar)
+    radar = draw_points_on_pitch(
+        config=CONFIG, xy=transformed_xy[color_lookup == 2],
+        face_color=sv.Color.from_hex(COLORS[2]), radius=20, pitch=radar)
+    radar = draw_points_on_pitch(
+        config=CONFIG, xy=transformed_xy[color_lookup == 3],
+        face_color=sv.Color.from_hex(COLORS[3]), radius=20, pitch=radar)
+    return radar
+
        
     
 
