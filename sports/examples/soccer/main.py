@@ -165,7 +165,7 @@ def render_radar(
         return radar
     except: 
         print('Failed to render radar')
-        continue
+       
     
 
 
