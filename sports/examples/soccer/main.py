@@ -182,7 +182,7 @@ def run_pitch_detection_supervision(source_video_path: str, device: str) -> Iter
     # pitch_detection_model = YOLO(PITCH_DETECTION_MODEL_PATH).to(device=device)
     pitch_detection_model = get_model(
       # model_id="football-field-detection-f07vi/14",
-      model-id = 'pitch-keypoints-detection/2'
+      model_id = 'pitch-keypoints-detection/2',
       api_key="hlYtBLk0K3c7oF6tW6PZ"
       )
     # update result to use supervision imported model
