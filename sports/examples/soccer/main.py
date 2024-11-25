@@ -6,7 +6,7 @@ import os
 import cv2
 import numpy as np
 import supervision as sv
-import inference
+from inference import get_model
 from tqdm import tqdm
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
@@ -169,22 +169,21 @@ def render_radar(
        
     
 def run_pitch_detection_supervision(source_video_path: str, device: str) -> Iterator[np.ndarray]:
-     """
-    Run pitch detection on a video and yield annotated frames.
-
-    Args:
-        source_video_path (str): Path to the source video.
-        device (str): Device to run the model on (e.g., 'cpu', 'cuda').
-
-    Yields:
-        Iterator[np.ndarray]: Iterator over annotated frames.
     """
+  Run pitch detection on a video and yield annotated frames.
+
+  Args:
+      source_video_path (str): Path to the source video.
+      device (str): Device to run the model on (e.g., 'cpu', 'cuda').
+
+  Yields:
+      Iterator[np.ndarray]: Iterator over annotated frames.
+  """
     # pitch_detection_model = YOLO(PITCH_DETECTION_MODEL_PATH).to(device=device)
-    from inference import get_model
     pitch_detection_model = get_model(
-        model_id="football-field-detection-f07vi/14",
-       api_key="hlYtBLk0K3c7oF6tW6PZ"
-        )
+      model_id="football-field-detection-f07vi/14",
+      api_key="hlYtBLk0K3c7oF6tW6PZ"
+      )
     # update result to use supervision imported model
     frame_generator = sv.get_video_frames_generator(source_path=source_video_path)
     for frame in frame_generator:
@@ -439,8 +438,8 @@ def main(source_video_path: str, target_video_path: str, device: str, mode: Mode
         frame_generator = run_pitch_detection(
             source_video_path=source_video_path, device=device)
     if mode == Mode.PITCH_DETECTION_SUPERVISION:
-    frame_generator = run_pitch_detection_supervision(
-        source_video_path=source_video_path, device=device)
+        frame_generator = run_pitch_detection_supervision(
+          source_video_path=source_video_path, device=device)
     elif mode == Mode.PLAYER_DETECTION:
         frame_generator = run_player_detection(
             source_video_path=source_video_path, device=device)
