@@ -6,6 +6,7 @@ import os
 import cv2
 import numpy as np
 import supervision as sv
+import inference
 from tqdm import tqdm
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ from configs.soccer import SoccerPitchConfiguration
 PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLAYER_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/player_detection_best.pt' # os.path.join(PARENT_DIR, 'data/football-player-detection.pt')
 # PITCH_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/Pitch_keypoints_best.pt' #  = os.path.join(PARENT_DIR, 'data/football-pitch-detection.pt')
-PITCH_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/best.pt'
+# PITCH_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/best.pt'
 BALL_DETECTION_MODEL_PATH = '/content/drive/MyDrive/weights/Ball_detect_best.pt' #os.path.join(PARENT_DIR, 'data/football-ball-detection.pt')
 
 BALL_CLASS_ID = 0
@@ -82,6 +83,7 @@ class Mode(Enum):
     Enum class representing different modes of operation for Soccer AI video analysis.
     """
     PITCH_DETECTION = 'PITCH_DETECTION'
+    PITCH_DETECTION_SUPERVISION = 'PITCH_DETECTION_SUPERVISION'
     PLAYER_DETECTION = 'PLAYER_DETECTION'
     BALL_DETECTION = 'BALL_DETECTION'
     PLAYER_TRACKING = 'PLAYER_TRACKING'
@@ -166,6 +168,33 @@ def render_radar(
 
        
     
+def run_pitch_detection_supervision(source_video_path: str, device: str) -> Iterator[np.ndarray]:
+     """
+    Run pitch detection on a video and yield annotated frames.
+
+    Args:
+        source_video_path (str): Path to the source video.
+        device (str): Device to run the model on (e.g., 'cpu', 'cuda').
+
+    Yields:
+        Iterator[np.ndarray]: Iterator over annotated frames.
+    """
+    # pitch_detection_model = YOLO(PITCH_DETECTION_MODEL_PATH).to(device=device)
+    from inference import get_model
+    pitch_detection_model = get_model(
+        model_id="football-field-detection-f07vi/14",
+       api_key="hlYtBLk0K3c7oF6tW6PZ"
+        )
+    # update result to use supervision imported model
+    frame_generator = sv.get_video_frames_generator(source_path=source_video_path)
+    for frame in frame_generator:
+        result = pitch_detection_model.infer(frame, confidence=.9)[0]
+        keypoints = sv.KeyPoints.from_inference(result)
+
+        annotated_frame = frame.copy()
+        annotated_frame = VERTEX_LABEL_ANNOTATOR.annotate(
+            annotated_frame, keypoints, CONFIG.labels)
+        yield annotated_frame
 
 
 def run_pitch_detection(source_video_path: str, device: str) -> Iterator[np.ndarray]:
@@ -335,7 +364,8 @@ def run_team_classification(source_video_path: str, device: str) -> Iterator[np.
 
 def run_radar(source_video_path: str, device: str) -> Iterator[np.ndarray]:
     player_detection_model = YOLO(PLAYER_DETECTION_MODEL_PATH).to(device=device)
-    pitch_detection_model = YOLO(PITCH_DETECTION_MODEL_PATH).to(device=device)
+    # pitch_detection_model = YOLO(PITCH_DETECTION_MODEL_PATH).to(device=device)
+    
     frame_generator = sv.get_video_frames_generator(
         source_path=source_video_path, stride=STRIDE)
 
@@ -347,12 +377,16 @@ def run_radar(source_video_path: str, device: str) -> Iterator[np.ndarray]:
 
     team_classifier = TeamClassifier(device=device)
     team_classifier.fit(crops)
-
+    from inference import get_model
+    pitch_detection_model = get_model(
+        model_id="football-field-detection-f07vi/14",
+       api_key="hlYtBLk0K3c7oF6tW6PZ"
+    )
     frame_generator = sv.get_video_frames_generator(source_path=source_video_path)
     tracker = sv.ByteTrack(minimum_consecutive_frames=3)
     for frame in frame_generator:
-        result = pitch_detection_model(frame, verbose=False)[0]
-        keypoints = sv.KeyPoints.from_ultralytics(result)
+        result = pitch_detection_model.infer(frame, confidence=.9)[0]
+        keypoints = sv.KeyPoints.from_inference(result)
         result = player_detection_model(frame, imgsz=1280, verbose=False)[0]
         detections = sv.Detections.from_ultralytics(result)
         detections = tracker.update_with_detections(detections)
@@ -404,6 +438,9 @@ def main(source_video_path: str, target_video_path: str, device: str, mode: Mode
     if mode == Mode.PITCH_DETECTION:
         frame_generator = run_pitch_detection(
             source_video_path=source_video_path, device=device)
+    if mode == Mode.PITCH_DETECTION_SUPERVISION:
+    frame_generator = run_pitch_detection_supervision(
+        source_video_path=source_video_path, device=device)
     elif mode == Mode.PLAYER_DETECTION:
         frame_generator = run_player_detection(
             source_video_path=source_video_path, device=device)
